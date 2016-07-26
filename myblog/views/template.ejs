@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= title %>JohnSen的博客</title>
-    <link rel='stylesheet' href='/stylesheets/bootstrap.css' />
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
     <style type="text/css">
         body {
             padding-top: 60px;
             padding-bottom: 40px;
         }
     </style>
-    <link rel='stylesheet' href='/stylesheets/bootstrap-responsive.css' />
+    <link rel='stylesheet' href='/stylesheets/bootstrap-responsive.css'/>
 </head>
 <body>
 
@@ -24,9 +24,14 @@
             <a class="brand" href="/">JohnSen的博客</a>
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li class="active"><a href="/">首页</a> </li>
-                    <li><a href="/login">登录</a> </li>
-                    <li><a href="/reg">注册</a> </li>
+                    <li class="active"><a href="/">首页</a></li>
+                    <% if(!user){ %>
+                    <li><a href="/login">登录</a></li>
+                    <li><a href="/reg">注册</a></li>
+                    <% }else{ %>
+                    <li><a href="/logout">登出</a></li>
+                    <% } %>
+
                 </ul>
             </div>
         </div>
@@ -34,8 +39,20 @@
 </div>
 
 <div id="container" class="container">
+    <!--页面通知-->
+    <% if(success){ %>
+    <div class="alert alert-success">
+        <%= success %>
+    </div>
+    <% } %>
+    <% if(error){ %>
+    <div class="alert alert-error">
+        <%= error %>
+    </div>
+    <% } %>
+
     <%- body %>
-    <hr />
+    <hr/>
     <footer>
         <p><a href="http://www.baidu.com" target="_blank">BaiDu</a> 2016</p>
     </footer>
