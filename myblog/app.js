@@ -9,9 +9,7 @@ var settings = require('./settings');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
-
 var routes = require('./routes/index');
-
 var app = express();
 
 // view engine setup
@@ -46,9 +44,6 @@ app.use(function (req, res, next) {
 });
 
 app.use('/', routes);
-
-
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
