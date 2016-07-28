@@ -1,24 +1,40 @@
 var express = require('express');
 var crypto = require('crypto');
 var User = require('../models/user');
+var Post = require('../models/post');
 var router = express.Router();
 
-/* GET home page. */
+/* 首页. */
 router.get('/', function (req, res) {
-    res.render('index', {title: 'JohnSen的博客', layout: 'template'});
+    Post.get(null, function (err, posts) {
+        if (err) {
+            posts = [];
+        }
+        res.render('index', {title: 'JohnSen的博客', layout: 'template', posts: posts,});
+    });
 
 });
-/* POST home page. */
+/* 发表微博. */
+router.post('/post', checkLogin);
 router.post('/post', function (req, res) {
-
+    var currentUser = req.session.user;
+    var post = new Post(currentUser.name, req.body.post);
+    post.save(function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+        req.flash('success', '发表成功');
+        res.redirect('/u/' + currentUser.name);
+    });
 });
-/* REG get. */
-router.get('/reg',checkNotLogin);
+/* 注册页面. */
+router.get('/reg', checkNotLogin);
 router.get('/reg', function (req, res) {
     res.render('reg', {title: '注册', layout: 'template'});
 });
-/* REG post. */
-router.post('/reg',checkNotLogin);
+/* 提交注册. */
+router.post('/reg', checkNotLogin);
 router.post('/reg', function (req, res) {
     //检验用户两次输入的密码是否一致
     if (req.body['password-repeat'] != req.body['password']) {
@@ -55,12 +71,12 @@ router.post('/reg', function (req, res) {
         })
     });
 });
-/* login get. */
+/* 登录页面. */
 router.get('/login', checkNotLogin);
 router.get('/login', function (req, res) {
     res.render('login', {title: '用户登录', layout: 'template'});
 });
-/* login post. */
+/* 登录提交. */
 router.post('/login', checkNotLogin);
 router.post('/login', function (req, res) {
     //生成密码的散列值
@@ -81,8 +97,26 @@ router.post('/login', function (req, res) {
         res.redirect('/');
     });
 });
-/* logout get. */
-router.get('/logout',checkLogin);
+/*用户页面*/
+router.get('/u/:user', function (req, res) {
+    User.get(req.params.user, function (err, user) {
+        if (!user) {
+            req.flash('error', '用户不存在');
+            return res.redirect('/');
+        }
+        Post.get(user.name, function (err, posts) {
+            if (err) {
+                req.flash('error', err);
+                return res.redirect('/');
+            }
+            res.render('user', {title: user.name, layout: 'template', posts: posts,});
+        });
+    })
+});
+
+
+/* 登出页面. */
+router.get('/logout', checkLogin);
 router.get('/logout', function (req, res) {
     req.session.user = null;
     req.flash('success', '登出成功');
